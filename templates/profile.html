@@ -1,0 +1,64 @@
+<!-- templates/profile.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="title">
+    Bienvenid@, {{current_user.name}}!
+  </h1>
+  <br>
+  {%if not current_user.is_admin%} 
+    <h2 class="subtitle">Te encuentras en <span>{{status_now.status}}</span></h2>
+    <br>
+    <h1 class="subtitle">¿Qué desea hacer?</h1> 
+    <div class="columns">
+      <div class="column">
+        
+          <form method="POST" action="/logout">
+            {% if status_now.status != 'ENTRADA'%}
+              <input type="submit" class="button is-success is-large" value="ENTRADA" name="entrada">
+            {% endif%}
+            {% if status_now.status != 'DESCANSO'%}
+              <input type="submit" class="button is-warning is-large" value="DESCANSO" name="descanso">
+            {% endif%}
+            {% if status_now.status != 'SALIDA'%}
+              <input type="submit" class="button is-danger is-large" value="SALIDA" name="salida">
+            {% endif%}
+          </form>
+      </div>
+    </div>
+  {%endif%}
+  {%if current_user.is_admin%} 
+    <h1 class="title">Panel de administración</h1>
+    <div id="container-grid-title">
+      <div id="action-grid-title">  
+          <div class="name-title">
+            NOMBRE
+          </div>
+          <div class="status-title">
+            ESTADO
+          </div>
+          <div class="date-title">
+            FECHA
+          </div>
+      </div>     
+    </div>
+    <div id="container-grid">
+      <div id="action-grid">
+        {% for register in registers%}   
+          <div class="name">
+            <strong>{{register.user}}</strong>
+          </div>
+          <div class="status">
+            <span style="color:red"><strong>{{register.status}}</strong></span>
+          </div>
+          <div class="date">
+            {{register.date}}<br>
+          </div>
+        {%endfor%}
+      </div>     
+      <a class="button is-danger is-large exit" href="{{url_for('logout')}}">SALIR</a>
+    </div>
+  {%endif%}
+
+{% endblock %}

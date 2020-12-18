@@ -1,0 +1,46 @@
+<!-- templates/index.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+    <h1 class="title is-fullwidth">REGISTRO DE ENTRADA</h1>
+    <div class="column is-4 is-offset-4">
+        <h3 class="subtitle">Iniciar sesión</h3>
+        <div class="box">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="notification is-danger">
+                        {{ messages[0] }}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            <form method="POST" action="/">
+                <div class="field">
+                    <div class="control has-icons-left">
+                        <div class="select is-large">
+                            <select name="name">
+                                <option selected="True" disabled="disabled">Selecciona usuario</option>
+                                {%for user in users%}
+                                    <option value="{{user.name}}">{{user.name}}</option>
+                                {%endfor%}
+                            </select>
+                        </div>
+                        <div class="icon is-large is-left has-text-info">
+                            <i class="fas fa-info-circle"><img src="{{url_for('static', filename="user.png")}}" width="25px"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="control has-icons-left">
+                        <input class="input is-large" type="password" name="password" placeholder="Contraseña">
+                        <div class="icon is-large is-left has-text-info">
+                            <i class="fas fa-info-circle"><img src="{{url_for('static', filename="pass.png")}}" width="22px"></i>
+                        </div>
+                    </div>
+                </div>
+                <button class="button is-block is-success is-large is-fullwidth">Entrar</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
