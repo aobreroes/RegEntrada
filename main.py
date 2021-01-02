@@ -7,6 +7,7 @@ from sqlalchemy import desc
 from datetime import datetime
 import secrets
 import crypt
+import csv
 
 app = Flask(__name__)
 
@@ -19,7 +20,9 @@ login_manager.init_app(app)
 login_manager.login_view = '/'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///regdb.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True) 
@@ -39,13 +42,16 @@ class Action(db.Model):
 @app.route('/index')
 @app.route('/home')
 def home():
+
+    now = datetime.now()
     names = db.session.query(User).all()
-    return render_template("index.html", users=names)
+    return render_template("index.html", users=names, now=now)
 
 @app.route('/', methods=['POST'])
 @app.route('/index', methods=['POST'])
 @app.route('/home', methods=['POST'])
 def login_post():
+
     _name = request.form.get('name')
     _password = request.form.get('password')
     encryptpass = crypt.crypt(_password,'salt')
@@ -63,11 +69,57 @@ def login_post():
 @login_required
 def profile():
 
+    now = datetime.now()
     users = User.query.all()
     registers = Action.query.all()
     status_now = Action.query.filter_by(user=current_user.name).order_by(Action.id.desc()).first()
 
-    return render_template("profile.html", user=current_user, status_now=status_now, registers=registers, users=users)
+    return render_template("profile.html", user=current_user, status_now=status_now, registers=registers, users=users, now=now)
+
+@app.route('/csv_today')
+@login_required
+def csv_create_today():
+
+    now = datetime.now()
+    registers = Action.query.all()
+    with open ('registros2.csv', 'a') as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow(['NOMBRE','ESTADO','FECHA'])
+    for register in registers:
+        if register.date.strftime('%d/%m/%Y') == now.strftime('%d/%m/%Y'):
+            with open ('registros2.csv', 'a') as csv_file:
+                writer = csv.writer(csv_file)
+                writer.writerow([register.user, register.status, register.date])
+
+    flash('CSV creado')
+    return redirect(url_for('profile'))
+
+@app.route('/full_profile')
+@login_required
+def full_profiles():
+
+    users = User.query.all()
+    registers = Action.query.all()
+    status_now = Action.query.filter_by(user=current_user.name).order_by(Action.id.desc()).first()
+
+    return render_template("full_profile.html", user=current_user, status_now=status_now, registers=registers, users=users)
+
+@app.route('/csv')
+@login_required
+def csv_create():
+
+    registers = Action.query.all()
+    with open ('registros.csv', 'a') as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow(['NOMBRE','ESTADO','FECHA'])
+    for register in registers:
+        with open ('registros.csv', 'a') as csv_file:
+            writer = csv.writer(csv_file)
+            writer.writerow([register.user, register.status, register.date])
+
+    flash('CSV creado')
+    return redirect(url_for('full_profiles'))
+
 
 @app.route('/logout', methods=['POST'])
 @login_required
@@ -87,6 +139,48 @@ def action():
 
     logout_user()
     return redirect(url_for('home'))
+
+@app.route('/actions_profile')
+@login_required
+def action_profile():
+
+    now = datetime.now()
+    actions = Action.query.filter_by(user=current_user.name)
+
+    count = 0
+    for i in actions:
+        if now.strftime('%d/%m/%Y') == i.date.strftime('%d/%m/%Y'):
+            count= count + 1
+
+    return render_template('action_user.html', actions=actions, count=count, now=now)
+
+@app.route('/search', methods=['POST'])
+@login_required
+def search():
+
+    now = datetime.now()
+    user_name = request.form.get('username')
+    action_user = Action.query.filter_by(user=user_name)
+
+    count = 0
+    for i in action_user:
+        if now.strftime('%d/%m/%Y') == i.date.strftime('%d/%m/%Y'):
+            count= count + 1
+
+    return render_template('search.html', action_user=action_user, count=count, now=now)
+
+@app.route('/search_full', methods=['POST'])
+@login_required
+def search_full():
+
+    user_name = request.form.get('username')
+    action_user = Action.query.filter_by(user=user_name)
+
+    count = 0
+    for i in action_user:
+        count= count + 1
+
+    return render_template('search_full.html', action_user=action_user, count=count)
 
 
 @app.route('/logout')

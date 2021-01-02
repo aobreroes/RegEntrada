@@ -1,0 +1,50 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+    <div id="bar-sup">
+        <h1 class="subtitle has-text-left">Sesión: <strong>{{current_user.name}}</strong></h1>
+        <h1 class="subtitle has-text-right"><strong style="color:red">{{count}}</strong> resultados encontrados</h1>
+    </div>
+    <div id="container-grid-title">
+      <div id="action-grid-title-1">  
+          <div class="status-title">
+            ESTADO
+          </div>
+          <div class="date-title">
+            FECHA
+          </div>
+          <div class="date-title">
+            HORA
+          </div>
+      </div>     
+    </div>
+    <div id="container-grid">
+      <div id="action-grid-1">
+        {% for register in actions%}
+            {% if register.date.strftime('%d/%m/%Y') == now.strftime('%d/%m/%Y')%}   
+                <div class="status">
+                    {%if register.status == "ENTRADA" %}
+                    <span style="color:green"><strong>{{register.status}}</strong></span>
+                    {%endif%}
+                    {%if register.status == "DESCANSO" %}
+                    <span style="color:orange"><strong>{{register.status}}</strong></span>
+                    {%endif%}
+                    {%if register.status == "SALIDA" %}
+                    <span style="color:red"><strong>{{register.status}}</strong></span>
+                    {%endif%}
+                </div>
+                <div class="date">
+                    {{register.date.strftime('%d/%m/%Y')}}<br>
+                </div>
+                <div class="date">
+                    {{register.date.strftime('%H:%M:%S')}}<br>
+                </div>
+            {%endif%}
+        {%endfor%}
+      </div>
+      <a class="button is-warning is-medium exit" href="{{url_for('profile')}}"><img src="{{url_for('static', filename="back.png")}}" width="22px">&nbsp;ATRAS</a>     
+    </div>
+
+
+{% endblock %}

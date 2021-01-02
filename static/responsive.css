@@ -1,0 +1,33 @@
+
+
+
+@media (max-width: 375px){
+
+    .box{
+
+        width: 300px;
+    }
+
+    .hero.is-dark .title{
+
+        font-size: 20px;
+    }
+
+    #container-grid-title #action-grid-title{
+
+        display: none;
+    }
+
+    #container-grid #action-grid{
+
+        display: block;
+    }
+
+    .hero.is-dark .title {
+
+        font-size: 35px;
+
+    }
+    
+
+}

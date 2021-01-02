@@ -1,0 +1,87 @@
+<!-- templates/profile.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="notification is-success">
+        {{ messages[0] }}
+      </div>
+    {% endif %}
+{% endwith %}
+  <br>
+  {%if current_user.is_admin%} 
+    <h1 class="title has-text-left">
+      Todos los registros
+    </h1><br>
+    <div id="filters-2">
+      <h1 class="subtitle has-text-left"><strong>Panel de administración </strong></h1>
+      <div id="filter-2">
+        <div class="is-small has-text-left">
+            <input style="width:200px" class="input is-small" type="text" placeholder="Introduce una fecha dd/mm/aaaa">
+            <input class="button is-success is-small" type="submit" value="Buscar por fecha">
+        </div>
+        <form method="POST" action="/search_full">
+          <div class="select is-small has-text-left">
+            <select name="username">
+              <option selected="True" disabled="disabled">Selecciona usuario</option>
+              {%for user in users%}
+                {%if not user.is_admin%}
+                  <option value="{{user.name}}">{{user.name}}</option>
+                {%endif%}
+              {%endfor%}
+            </select>
+          </div>
+          <input class="button is-success is-small" type="submit" value="Filtrar">
+        </form> 
+      </div>
+    </div>
+    <div id="container-grid-title">
+      <div id="action-grid-title">  
+          <div class="name-title">
+            NOMBRE
+          </div>
+          <div class="status-title">
+            ESTADO
+          </div>
+          <div class="date-title">
+            FECHA
+          </div>
+          <div class="date-title">
+            HORA
+          </div>
+      </div>     
+    </div>
+    <div id="container-grid">
+      <div id="action-grid">
+        {% for register in registers%}
+            <div class="name">
+              <strong>{{register.user}}</strong>
+            </div>
+            <div class="status">
+              {%if register.status == "ENTRADA" %}
+                <span style="color:green"><strong>{{register.status}}</strong></span>
+              {%endif%}
+              {%if register.status == "DESCANSO" %}
+                <span style="color:orange"><strong>{{register.status}}</strong></span>
+              {%endif%}
+              {%if register.status == "SALIDA" %}
+                <span style="color:red"><strong>{{register.status}}</strong></span>
+              {%endif%}
+            </div>
+            <div class="date">
+              {{register.date.strftime('%d/%m/%Y')}}<br>
+            </div>
+            <div class="date">
+              {{register.date.strftime('%H:%M:%S')}}<br>
+            </div>
+        {%endfor%}
+      </div>
+      <a class="button is-success is-medium exit" href="{{url_for('csv_create')}}"><img src="{{url_for('static', filename="csv.png")}}" width="22px">&nbsp;EXPORTAR CSV</a>  
+      <a class="button is-warning is-medium exit" href="{{url_for('profile')}}"><img src="{{url_for('static', filename="back.png")}}" width="22px">&nbsp;ATRAS</a>         
+      <a class="button is-danger is-medium exit" href="{{url_for('logout')}}"><img src="{{url_for('static', filename="exit.png")}}" width="22px">&nbsp;SALIR</a>
+    </div>
+  {%endif%}
+
+{% endblock %}

@@ -3,9 +3,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1 class="title is-fullwidth">REGISTRO DE ENTRADA</h1>
+    <h1 class="title is-fullwidth" style="font-family:arial">REGISTRO DE ENTRADA</h1><br>
+    <h1 class="subtitle is-fullwidth">Jornada: <strong style="color:red; font-size:30px">{{now.strftime('%d/%m/%Y')}}</strong></h1>
     <div class="column is-4 is-offset-4">
-        <h3 class="subtitle">Iniciar sesión</h3>
+        <h3 class="subtitle">Inicio de sesión</h3>
         <div class="box">
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
@@ -42,5 +43,6 @@
                 <button class="button is-block is-success is-large is-fullwidth">Entrar</button>
             </form>
         </div>
+        <h1 class="subtitle is-fullwidth" ><span style="font-size:15px;">©aosistemas 2021 - Todos los derechos reservados</span></h1>
     </div>
 {% endblock %}

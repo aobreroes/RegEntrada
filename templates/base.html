@@ -10,12 +10,13 @@
     <title>REGISTRO DE ENTRADA</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css" />
     <link rel="stylesheet" href="{{url_for('static', filename="styles.css")}}" />
+    <link rel="stylesheet" href="{{url_for('static', filename="responsive.css")}}" />
     <link rel="icon" type="image/x-icon" href="{{url_for('static', filename="icono.png")}}">
 
 </head>
 
 <body>
-    <section class="hero is-info is-fullheight">
+    <section class="hero is-dark is-fullheight">
         <div class="hero-body">
             <div class="container has-text-centered">
                 {% block content %}

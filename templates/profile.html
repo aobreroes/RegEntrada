@@ -3,33 +3,72 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1 class="title">
-    Bienvenid@, {{current_user.name}}!
-  </h1>
-  <br>
-  {%if not current_user.is_admin%} 
-    <h2 class="subtitle">Te encuentras en <span>{{status_now.status}}</span></h2>
-    <br>
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="notification is-success">
+        {{ messages[0] }}
+      </div>
+    {% endif %}
+{% endwith %}
+  {%if not current_user.is_admin%}
+    <h1 class="title has-text-center">
+      Bienvenid@, {{current_user.name}}!
+    </h1><br>
+    <h2 class="subtitle">Te encuentras en
+       {% if status_now.status == 'ENTRADA'%}
+        <strong><span style="color:green">{{status_now.status}}</span></strong>
+        {%endif%}
+        {% if status_now.status == 'DESCANSO'%}
+        <strong><span style="color:orange">{{status_now.status}}</span></strong>
+        {%endif%}
+        {% if status_now.status == 'SALIDA'%}
+        <strong><span style="color:red">{{status_now.status}}</span></strong>
+        {%endif%}
+       desde el dia {{status_now.date.strftime('%d/%m/%Y')}} a las {{status_now.date.strftime('%H:%M:%S')}}</h2>
+    <h2><strong style="color:cyan; font-size:25px; text-decoration:underline;"> <a href="{{url_for("action_profile")}}">VER ESTADOS DE HOY</a></strong></h2><br>
     <h1 class="subtitle">¿Qué desea hacer?</h1> 
     <div class="columns">
       <div class="column">
         
           <form method="POST" action="/logout">
-            {% if status_now.status != 'ENTRADA'%}
-              <input type="submit" class="button is-success is-large" value="ENTRADA" name="entrada">
-            {% endif%}
-            {% if status_now.status != 'DESCANSO'%}
+            {% if status_now.status == 'ENTRADA'%}
               <input type="submit" class="button is-warning is-large" value="DESCANSO" name="descanso">
-            {% endif%}
-            {% if status_now.status != 'SALIDA'%}
               <input type="submit" class="button is-danger is-large" value="SALIDA" name="salida">
+            {% endif%}
+            {% if status_now.status == 'DESCANSO'%}
+              <input type="submit" class="button is-success is-large" value="ENTRADA" name="entrada">
+              <input type="submit" class="button is-danger is-large" value="SALIDA" name="salida">
+            {% endif%}
+            {% if status_now.status == 'SALIDA'%}
+              <input type="submit" class="button is-success is-large" value="ENTRADA" name="entrada">
             {% endif%}
           </form>
       </div>
     </div>
+    <a class="button is-info is-medium exit" href="{{url_for('logout')}}"><img src="{{url_for('static', filename="exit.png")}}" width="22px">&nbsp;SALIR</a>
   {%endif%}
   {%if current_user.is_admin%} 
-    <h1 class="title">Panel de administración</h1>
+    <h1 class="title has-text-left">
+      Bienvenid@, {{current_user.name}}!
+    </h1><br>
+    <div id="filters">
+      <h1 class="subtitle has-text-left"><strong>Panel de administración / Registros del día: <span style="color:red">{{now.strftime('%d/%m/%Y')}}</span></strong></h1>
+      <div id="filter">
+        <form method="POST" action="/search">
+          <div class="select is-small has-text-left">
+            <select name="username">
+              <option selected="True" disabled="disabled">Selecciona usuario</option>
+              {%for user in users%}
+                {%if not user.is_admin%}
+                  <option value="{{user.name}}">{{user.name}}</option>
+                {%endif%}
+              {%endfor%}
+            </select>
+          </div>
+          <input class="button is-success is-small" type="submit" value="Filtrar">
+        </form> 
+      </div>
+    </div>
     <div id="container-grid-title">
       <div id="action-grid-title">  
           <div class="name-title">
@@ -41,23 +80,43 @@
           <div class="date-title">
             FECHA
           </div>
+          <div class="date-title">
+            HORA
+          </div>
       </div>     
     </div>
     <div id="container-grid">
       <div id="action-grid">
-        {% for register in registers%}   
-          <div class="name">
-            <strong>{{register.user}}</strong>
-          </div>
-          <div class="status">
-            <span style="color:red"><strong>{{register.status}}</strong></span>
-          </div>
-          <div class="date">
-            {{register.date}}<br>
-          </div>
+        {% for register in registers%}
+          {% if register.date.strftime('%d/%m/%Y') == now.strftime('%d/%m/%Y')%}   
+            <div class="name">
+              <strong>{{register.user}}</strong>
+            </div>
+            <div class="status">
+              {%if register.status == "ENTRADA" %}
+                <span style="color:green"><strong>{{register.status}}</strong></span>
+              {%endif%}
+              {%if register.status == "DESCANSO" %}
+                <span style="color:orange"><strong>{{register.status}}</strong></span>
+              {%endif%}
+              {%if register.status == "SALIDA" %}
+                <span style="color:red"><strong>{{register.status}}</strong></span>
+              {%endif%}
+            </div>
+            <div class="date">
+              {{register.date.strftime('%d/%m/%Y')}}<br>
+            </div>
+            <div class="date">
+              {{register.date.strftime('%H:%M:%S')}}<br>
+            </div>
+          {%endif%}
         {%endfor%}
-      </div>     
-      <a class="button is-danger is-large exit" href="{{url_for('logout')}}">SALIR</a>
+      </div><br>
+      <div id="bar-inf">
+      <h1 class="subtitle has-text-right"><a href="{{url_for('full_profiles')}}">Ver todos los registros</a></h1>
+      </div>
+      <a class="button is-success is-medium exit" href="{{url_for('csv_create_today')}}"><img src="{{url_for('static', filename="csv.png")}}" width="22px">&nbsp;EXPORTAR CSV</a>     
+      <a class="button is-danger is-medium exit" href="{{url_for('logout')}}"><img src="{{url_for('static', filename="exit.png")}}" width="22px">&nbsp;SALIR</a>
     </div>
   {%endif%}
 
